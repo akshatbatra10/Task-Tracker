@@ -2,6 +2,8 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signup, SignupPayload } from "../services/authService";
 import axios from "axios";
+import InputField from "../components/InputField";
+import { useAuthStore } from "../store/authStore";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -27,7 +29,7 @@ const Signup = () => {
 
     try {
       const user = await signup(form);
-      localStorage.setItem("token", user.token);
+      useAuthStore.getState().login(user, user.token);
       navigate("/");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -53,40 +55,37 @@ const Signup = () => {
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
+          <InputField
+            label="Full Name"
             name="name"
-            placeholder="Full Name"
             value={form.name}
             onChange={handleChange}
-            className="w-full p-3 border rounded-md"
             required
           />
-          <input
-            type="email"
+
+          <InputField
+            label="Email"
             name="email"
-            placeholder="Email"
+            type="email"
             value={form.email}
             onChange={handleChange}
-            className="w-full p-3 border rounded-md"
             required
           />
-          <input
-            type="password"
+
+          <InputField
+            label="Password"
             name="password"
-            placeholder="Password"
+            type="password"
             value={form.password}
             onChange={handleChange}
-            className="w-full p-3 border rounded-md"
             required
           />
-          <input
-            type="text"
+
+          <InputField
+            label="Country"
             name="country"
-            placeholder="Country"
             value={form.country}
             onChange={handleChange}
-            className="w-full p-3 border rounded-md"
             required
           />
           <button
