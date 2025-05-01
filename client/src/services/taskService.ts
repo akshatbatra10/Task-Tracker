@@ -4,7 +4,7 @@ export interface Task {
   _id: string;
   title: string;
   description?: string;
-  status: "pending" | "in-progres" | "completed";
+  status: "pending" | "in-progress" | "completed";
   createdAt: string;
   completedAt?: Date;
 }
@@ -30,4 +30,23 @@ export const createTask = async (
     payload
   );
   return response.data;
+};
+
+export const updateTask = async (
+  projectId: string,
+  taskId: string,
+  payload: Partial<CreateTaskPayload>
+): Promise<Task> => {
+  const response = await api.put<Task>(
+    `/projects/${projectId}/tasks/${taskId}`,
+    payload
+  );
+  return response.data;
+};
+
+export const deleteTask = async (
+  projectId: string,
+  taskId: string
+): Promise<void> => {
+  await api.delete(`/projects/${projectId}/tasks/${taskId}`);
 };
