@@ -4,6 +4,8 @@ import cors from "cors";
 
 import authRouter from "./routes/authRoutes.js";
 import dbConnection from "./config/db.js";
+import projectRouter from "./routes/projectRoutes.js";
+import taskRouter from "./routes/taskRoutes.js";
 
 dotenv.config();
 
@@ -15,6 +17,8 @@ app.use(express.json());
 dbConnection();
 
 app.use("/api/auth", authRouter);
+app.use("/api/projects", projectRouter);
+app.use("/api/projects/:projectId/tasks", taskRouter);
 
 app.get("/", (req, res) => {
   res.send("API running");
