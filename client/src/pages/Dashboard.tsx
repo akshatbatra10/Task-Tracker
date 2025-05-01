@@ -1,12 +1,19 @@
 import { useAuthStore } from "../store/authStore";
 import { useEffect, useState } from "react";
-import { getProjects, Project } from "../services/projectService";
+import {
+  createProject,
+  getProjects,
+  Project,
+} from "../services/projectService";
+import axios from "axios";
 
 const Dashboard = () => {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
 
   const [projects, setProjects] = useState<Project[]>([]);
+  const [projectName, setProjectName] = useState("");
+  const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,8 +23,11 @@ const Dashboard = () => {
         const data = await getProjects();
         setProjects(data);
       } catch (error) {
-        console.error(error);
-        setError("Failed to fetch projects");
+        if (axios.isAxiosError(error)) {
+          setError(error?.response?.data?.message);
+        } else {
+          setError("Failed to fetch projects");
+        }
       } finally {
         setLoading(false);
       }
@@ -25,6 +35,28 @@ const Dashboard = () => {
 
     fetchProjects();
   }, []);
+
+  const handleCreateProject = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!projectName.trim()) return;
+
+    setCreating(true);
+    setError(null);
+
+    try {
+      const newProject = await createProject(projectName.trim());
+      setProjects((prev) => [newProject, ...prev]);
+      setProjectName("");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setError(error?.response?.data?.message);
+      } else {
+        setError("Failed to create a new project");
+      }
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -38,6 +70,24 @@ const Dashboard = () => {
             Logout
           </button>
         </div>
+
+        <form onSubmit={handleCreateProject} className="mb-4 flex gap-2">
+          <input
+            type="text"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            placeholder="Project name"
+            className="flex-1 p-2 border rounded-md"
+            disabled={creating}
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+            disabled={creating}
+          >
+            {creating ? "Creating..." : "Add"}
+          </button>
+        </form>
 
         <h2 className="text-lg font-semibold mb-2">Your Projects</h2>
 
