@@ -8,6 +8,7 @@ import {
   updateTask,
 } from "../services/taskService";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const ProjectTasks = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -32,7 +33,6 @@ const ProjectTasks = () => {
   >("all");
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   const taskCounts = {
     all: tasks.length,
@@ -50,9 +50,9 @@ const ProjectTasks = () => {
         setTasks(data);
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          setError(error?.response?.data?.message);
+          toast.error(error?.response?.data?.message);
         } else {
-          setError("Failed to fetch tasks");
+          toast.error("Failed to fetch tasks");
         }
       } finally {
         setLoading(false);
@@ -67,7 +67,6 @@ const ProjectTasks = () => {
     if (!projectId || !title.trim()) return;
 
     setCreating(true);
-    setError(null);
 
     try {
       const newTask = await createTask(projectId, {
@@ -80,11 +79,12 @@ const ProjectTasks = () => {
       setTitle("");
       setDescription("");
       setStatus("pending");
+      toast.success("Task created successfully");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setError(error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
       } else {
-        setError("Failed to create task");
+        toast.error("Failed to create task");
       }
     } finally {
       setCreating(false);
@@ -113,11 +113,12 @@ const ProjectTasks = () => {
         prev.map((task) => (task._id === updatedTask._id ? updatedTask : task))
       );
       setEditingTaskId(null);
+      toast.success("Task updated successfully");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setError(error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
       } else {
-        setError("Failed to update task");
+        toast.error("Failed to update task");
       }
     }
   };
@@ -127,9 +128,13 @@ const ProjectTasks = () => {
     try {
       await deleteTask(projectId, taskId);
       setTasks((prev) => prev.filter((task) => task._id !== taskId));
-    } catch (err) {
-      console.error(err);
-      setError("Failed to delete task");
+      toast.success("Task deleted successfully");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error?.response?.data?.message);
+      } else {
+        toast.error("Failed to delete task");
+      }
     }
   };
 
@@ -183,7 +188,6 @@ const ProjectTasks = () => {
         </form>
 
         {loading && <p>Loading tasks...</p>}
-        {error && <p className="text-red-600">{error}</p>}
 
         {!loading && tasks.length === 0 && (
           <p className="text-gray-500">No tasks in this project yet.</p>

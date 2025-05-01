@@ -9,6 +9,7 @@ import {
 } from "../services/projectService";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Dashboard = () => {
   const user = useAuthStore((state) => state.user);
@@ -20,7 +21,6 @@ const Dashboard = () => {
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [editProjectName, setEditProjectName] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   const maxProjects = 4;
   const hasReachedProjectLimit = projects.length >= maxProjects;
@@ -31,11 +31,8 @@ const Dashboard = () => {
         const data = await getProjects();
         setProjects(data);
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          setError(error?.response?.data?.message);
-        } else {
-          setError("Failed to fetch projects");
-        }
+        console.error(error);
+        toast.error("Unable to fetch projects");
       } finally {
         setLoading(false);
       }
@@ -44,22 +41,28 @@ const Dashboard = () => {
     fetchProjects();
   }, []);
 
+  useEffect(() => {
+    if (projects.length === maxProjects) {
+      toast("You’ve reached the limit of 4 projects", { icon: "⚠️" });
+    }
+  }, [projects.length]);
+
   const handleCreateProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!projectName.trim()) return;
 
     setCreating(true);
-    setError(null);
 
     try {
       const newProject = await createProject(projectName.trim());
       setProjects((prev) => [newProject, ...prev]);
       setProjectName("");
+      toast.success("Project created successfully!");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setError(error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
       } else {
-        setError("Failed to create a new project");
+        toast.error("Failed to create new project");
       }
     } finally {
       setCreating(false);
@@ -84,11 +87,12 @@ const Dashboard = () => {
         prev.map((p) => (p._id === updated._id ? updated : p))
       );
       setEditingProjectId(null);
+      toast.success("Project updated successfully!");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setError(error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
       } else {
-        setError("Failed to update project");
+        toast.error("Failed to update project");
       }
     }
   };
@@ -97,13 +101,19 @@ const Dashboard = () => {
     try {
       await deleteProject(projectId);
       setProjects((prev) => prev.filter((p) => p._id !== projectId));
+      toast.success("Project deleted successfully!");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setError(error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
       } else {
-        setError("Failed to delete project");
+        toast.error("Failed to delete project");
       }
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully");
   };
 
   return (
@@ -112,7 +122,7 @@ const Dashboard = () => {
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl font-bold">Welcome, {user?.name} 👋</h1>
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="text-sm text-red-600 hover:underline"
           >
             Logout
@@ -140,16 +150,9 @@ const Dashboard = () => {
         <h2 className="text-lg font-semibold mb-2">Your Projects</h2>
 
         {loading && <p>Loading...</p>}
-        {error && <p className="text-red-600">{error}</p>}
 
         {!loading && projects.length === 0 && (
           <p className="text-gray-500">You don’t have any projects yet.</p>
-        )}
-
-        {hasReachedProjectLimit && (
-          <p className="text-sm text-red-500">
-            You’ve reached the limit of {maxProjects} projects.
-          </p>
         )}
 
         <ul className="space-y-2">
