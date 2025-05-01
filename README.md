@@ -8,7 +8,7 @@ Users can sign up, create projects (up to 4), and manage tasks within those proj
 
 ## 🔗 Live Demo
 
-> ℹ️ _(Add link here if deployed on Vercel / Render)_
+>
 
 ---
 
@@ -77,4 +77,36 @@ cp .env.example .env
 # Edit the .env file with:
 # VITE_API_BASE_URL=http://localhost:3000/api
 npm run dev
+```
+
+## 📁 Folder Structure
+
+```
+task-tracker/
+├── client/                        # React frontend (Vite + TypeScript)
+│   ├── public/                    # Static assets
+│   └── src/
+│       ├── components/            # Reusable UI elements (e.g., InputField)
+│       ├── pages/                 # Route-level views (Signup, Login, Dashboard, etc.)
+│       ├── services/              # API calls (authService, projectService, taskService)
+│       ├── store/                 # Zustand store (auth state)
+│       ├── routes/                # Route guards (PrivateRoute, PublicRoute)
+│       ├── App.tsx                # Main app component
+│       └── main.tsx              # App entry point
+│
+├── server/                        # Node.js backend (Express + MongoDB)
+│   └── src/
+│       ├── config/                # Database connection config
+│       ├── controllers/           # Business logic (auth, project, task)
+│       ├── middleware/            # JWT auth middleware
+│       ├── models/                # Mongoose models
+│       ├── routes/                # Express route handlers
+|       ├── services/              # Business logic
+|       ├── utils/                 # helper functions
+│       └── index.js               # Entry point for backend
+│
+├── .gitignore
+├── README.md
+└── package.json
+
 ```
