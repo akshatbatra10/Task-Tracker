@@ -16,3 +16,16 @@ export const createProject = async (name: string): Promise<Project> => {
 
   return response.data;
 };
+
+export const updateProject = async (
+  projectId: string,
+  name: string
+): Promise<Project> => {
+  const response = await api.put<Project>(`/projects/${projectId}`, { name });
+
+  return response.data;
+};
+
+export const deleteProject = async (projectId: string): Promise<void> => {
+  await api.delete(`/projects/${projectId}`);
+};
