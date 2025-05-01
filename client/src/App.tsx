@@ -9,6 +9,7 @@ import PrivateRoute from "./routes/PrivateRoute";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
 import PublicRoute from "./routes/PublicRoute";
+import ProjectTasks from "./pages/ProjectTasks";
 
 function App() {
   const restore = useAuthStore((state) => state.restoreFromStorage);
@@ -46,6 +47,14 @@ function App() {
           element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/projects/:projectId"
+          element={
+            <PrivateRoute>
+              <ProjectTasks />
             </PrivateRoute>
           }
         />

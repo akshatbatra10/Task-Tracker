@@ -6,6 +6,7 @@ import {
   Project,
 } from "../services/projectService";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const user = useAuthStore((state) => state.user);
@@ -100,15 +101,16 @@ const Dashboard = () => {
 
         <ul className="space-y-2">
           {projects.map((project) => (
-            <li
+            <Link
+              to={`/projects/${project._id}`}
               key={project._id}
-              className="p-4 border rounded-md hover:bg-gray-50"
+              className="block p-4 border rounded-md hover:bg-gray-50"
             >
               <div className="font-medium">{project.name}</div>
               <div className="text-sm text-gray-500">
                 Created on {new Date(project.createdAt).toLocaleDateString()}
               </div>
-            </li>
+            </Link>
           ))}
         </ul>
       </div>
