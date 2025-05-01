@@ -27,8 +27,19 @@ const ProjectTasks = () => {
     "pending" | "in-progress" | "completed"
   >("pending");
 
+  const [filter, setFilter] = useState<
+    "all" | "pending" | "in-progress" | "completed"
+  >("all");
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const taskCounts = {
+    all: tasks.length,
+    pending: tasks.filter((t) => t.status === "pending").length,
+    "in-progress": tasks.filter((t) => t.status === "in-progress").length,
+    completed: tasks.filter((t) => t.status === "completed").length,
+  };
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -177,91 +188,126 @@ const ProjectTasks = () => {
         {!loading && tasks.length === 0 && (
           <p className="text-gray-500">No tasks in this project yet.</p>
         )}
+        <div className="flex gap-3 mb-4 flex-wrap">
+          {["all", "pending", "in-progress", "completed"].map((status) => {
+            const label =
+              status === "all"
+                ? "All"
+                : status
+                    .replace("-", " ")
+                    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+            return (
+              <button
+                key={status}
+                onClick={() => setFilter(status as typeof filter)}
+                className={`px-4 py-2 min-w-[130px] rounded-md border flex items-center justify-between ${
+                  filter === status
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-700 border-gray-300"
+                }`}
+              >
+                <span>{label}</span>
+                <span
+                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    filter === status
+                      ? "bg-white text-blue-600"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  {taskCounts[status as keyof typeof taskCounts]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
         <ul className="space-y-2">
-          {tasks.map((task) => (
-            <li key={task._id} className="p-4 border rounded-md">
-              {editingTaskId === task._id ? (
-                // ✅ Edit form
-                <form onSubmit={handleUpdateTask} className="space-y-2">
-                  <input
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    className="w-full p-2 border rounded-md"
-                    required
-                  />
-                  <textarea
-                    value={editDescription}
-                    onChange={(e) => setEditDescription(e.target.value)}
-                    className="w-full p-2 border rounded-md"
-                    rows={2}
-                    placeholder="Description (optional)"
-                  />
-                  <select
-                    value={editStatus}
-                    onChange={(e) =>
-                      setEditStatus(
-                        e.target.value as
-                          | "pending"
-                          | "in-progress"
-                          | "completed"
-                      )
-                    }
-                    className="w-full p-2 border rounded-md"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                  </select>
-                  <div className="flex gap-2">
-                    <button
-                      type="submit"
-                      className="bg-green-600 text-white px-3 py-1 rounded-md"
+          {tasks
+            .filter((task) => filter === "all" || task.status === filter)
+            .map((task) => (
+              <li key={task._id} className="p-4 border rounded-md">
+                {editingTaskId === task._id ? (
+                  // ✅ Edit form
+                  <form onSubmit={handleUpdateTask} className="space-y-2">
+                    <input
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      className="w-full p-2 border rounded-md"
+                      required
+                    />
+                    <textarea
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      className="w-full p-2 border rounded-md"
+                      rows={2}
+                      placeholder="Description (optional)"
+                    />
+                    <select
+                      value={editStatus}
+                      onChange={(e) =>
+                        setEditStatus(
+                          e.target.value as
+                            | "pending"
+                            | "in-progress"
+                            | "completed"
+                        )
+                      }
+                      className="w-full p-2 border rounded-md"
                     >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      className="bg-gray-300 px-3 py-1 rounded-md"
-                      onClick={() => setEditingTaskId(null)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                // ✅ Read-only task view
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-medium">{task.title}</div>
-                    {task.description && (
-                      <div className="text-sm text-gray-700 mb-1">
-                        {task.description}
+                      <option value="pending">Pending</option>
+                      <option value="in-progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        className="bg-green-600 text-white px-3 py-1 rounded-md"
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        className="bg-gray-300 px-3 py-1 rounded-md"
+                        onClick={() => setEditingTaskId(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  // ✅ Read-only task view
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-medium">{task.title}</div>
+                      {task.description && (
+                        <div className="text-sm text-gray-700 mb-1">
+                          {task.description}
+                        </div>
+                      )}
+                      <div className="text-sm text-gray-500">
+                        Status: {task.status} • Created:{" "}
+                        {new Date(task.createdAt).toLocaleDateString()}
                       </div>
-                    )}
-                    <div className="text-sm text-gray-500">
-                      Status: {task.status} • Created:{" "}
-                      {new Date(task.createdAt).toLocaleDateString()}
+                    </div>
+                    <div className="flex gap-2 text-sm">
+                      <button
+                        onClick={() => handleEdit(task)}
+                        className="text-blue-600 hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTask(task._id)}
+                        className="text-red-600 hover:underline"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
-                  <div className="flex gap-2 text-sm">
-                    <button
-                      onClick={() => handleEdit(task)}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteTask(task._id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              )}
-            </li>
-          ))}
+                )}
+              </li>
+            ))}
         </ul>
       </div>
     </div>
