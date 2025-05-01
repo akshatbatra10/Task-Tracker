@@ -6,12 +6,6 @@ Users can sign up, create projects (up to 4), and manage tasks within those proj
 
 ---
 
-## 🔗 Live Demo
-
-> http://task-tracker-rho-three.vercel.app/
-
----
-
 ## 🚀 Features
 
 ### ✅ Authentication
@@ -110,3 +104,43 @@ task-tracker/
 └── package.json
 
 ```
+
+---
+
+## 🚀 Live Demo
+
+🔗 **Frontend (Vercel)**: [http://task-tracker-rho-three.vercel.app/](http://task-tracker-rho-three.vercel.app/)  
+🔗 **Backend (Render)**: [https://task-tracker-vjxc.onrender.com](https://task-tracker-vjxc.onrender.com/api)
+
+> Note: You can sign up, create up to 4 projects, and manage tasks within each project.
+
+---
+
+## 🧑‍💻 Submitted By
+
+**Akshat Batra**  
+GitHub: [github.com/akshatbatra](https://github.com/akshatbatra10)  
+Email: [akshatbatra10@gmail.com]  
+LinkedIn: [linkedin.com/in/akshatbatra](https://linkedin.com/in/akshatbatra10)
+
+---
+
+## ✅ How to Test
+
+1. Visit the live frontend link above.
+2. Sign up with your email, name, password, and country.
+3. Create up to 4 projects (limit is enforced).
+4. Click on a project to add/edit/delete tasks.
+5. Filter tasks by status.
+6. Logout and try accessing protected pages — they’re blocked!
+
+---
+
+## 📝 Notes
+
+- React + TypeScript (Vite) frontend
+- Node + Express + MongoDB backend
+- JWT auth with Zustand state management
+- Deployed using Render (API) and Vercel (UI)
+- Full mobile-friendly responsive UI with Tailwind
+- Clean, modular folder structure
